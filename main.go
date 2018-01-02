@@ -10,7 +10,7 @@ import (
 	"github.com/fabric-suning-sdk/web/controllers"
 )
 
-// Fix empty GOPATH with golang 1.8 (see https://github.com/golang/go/blob/1363eeba6589fca217e155c829b2a7c00bc32a92/src/go/build/build.go#L260-L277)
+
 func defaultGOPATH() string {
 	env := "HOME"
 	if runtime.GOOS == "windows" {

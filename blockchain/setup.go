@@ -4,7 +4,7 @@ import (
 	api "github.com/hyperledger/fabric-sdk-go/api"
 	fsgConfig "github.com/hyperledger/fabric-sdk-go/pkg/config"
 	bccspFactory "github.com/hyperledger/fabric/bccsp/factory"
-	fcutil "github.com/hyperledger/fabric-sdk-go/pkg/util"
+	fcutil "github.com/hyperledger/fabric-sdk-go/pkg/fabric-txn/internal/common"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabric-client/events"
 	"fmt"
 	"os"

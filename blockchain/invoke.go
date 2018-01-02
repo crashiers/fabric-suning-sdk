@@ -1,7 +1,7 @@
 package blockchain
 
 import (
-	fcutil "github.com/hyperledger/fabric-sdk-go/pkg/util"
+	fcutil "github.com/hyperledger/fabric-sdk-go/pkg/fabric-txn/internal"
 	api "github.com/hyperledger/fabric-sdk-go/api"
 	"fmt"
 	"time"
