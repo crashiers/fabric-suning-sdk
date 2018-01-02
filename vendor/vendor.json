@@ -297,6 +297,12 @@
 			"revisionTime": "2017-06-26T20:50:18Z"
 		},
 		{
+			"checksumSHA1": "ttWaav+8Dgk3D+RnXpg4lfIXY4U=",
+			"path": "github.com/golang/protobuf",
+			"revision": "1e59b77b52bf8e4b449a57e6f79f21226d571845",
+			"revisionTime": "2017-11-13T18:07:20Z"
+		},
+		{
 			"checksumSHA1": "kBeNcaKk56FguvPSUCEaH6AxpRc=",
 			"origin": "github.com/hyperledger/fabric-sdk-go/vendor/github.com/golang/protobuf/proto",
 			"path": "github.com/golang/protobuf/proto",

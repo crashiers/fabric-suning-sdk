@@ -1,15 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 	"path/filepath"
-	"github.com/fabric-suning-sdk/blockchain"
-	"github.com/fabric-suning-sdk/web"
-	"github.com/fabric-suning-sdk/web/controllers"
+	"net/http"
 )
 
+var base BaseSetupImpl
+
+type Result struct {
+    Code    int    `json:"code"`
+    Message string `json:"message"`
+    Data interface{} `json:"data"`
+}
 
 func defaultGOPATH() string {
 	env := "HOME"
@@ -30,6 +34,44 @@ func defaultGOPATH() string {
 	return ""
 }
 
+func init() {
+    base = BaseSetupImpl{
+        ConfigFile:      "../test/fixtures/config/config_test.yaml",
+        ChainID:         "testchannel",
+        ChannelConfig:   "../test/fixtures/channel/testchannel.tx",
+        ConnectEventHub: true,
+        ChainCodeID: "artchain",
+        AppraisalChainCodeID: "appraisal",
+        SearchChainCodeID: "search",
+    }
+
+    if err := base.Initialize(); err != nil {
+        fmt.Printf("Initialize: %v", err)
+        os.Exit(-1)
+    }
+
+    fmt.Println("InstallAndInstantiateArtChainCC ing ...")
+    if err := base.InstallAndInstantiateArtChainCC("github.com/artchain", "v1.0"); err != nil {
+        fmt.Printf("InstallAndInstantiateArtChainCC: %v", err)
+        os.Exit(-1)
+    }
+    fmt.Println("InstallAndInstantiateArtChainCC succ!")
+
+    fmt.Println("InstallAndInstantiateAppraisalCC ing ...")
+    if err := base.InstallAndInstantiateAppraisalCC("github.com/appraisal", "v1.0"); err != nil {
+        fmt.Printf("InstallAndInstantiateAppraisalCC: %v", err)
+        os.Exit(-1)
+    }
+    fmt.Println("InstallAndInstantiateAppraisalCC succ!")
+
+    fmt.Println("InstallAndInstantiateSearchCC ing ...")
+    if err := base.InstallAndInstantiateSearchCC("github.com/search", "v1.0"); err != nil {
+        fmt.Printf("InstallAndInstantiateSearchCC: %v", err)
+        os.Exit(-1)
+    }
+    fmt.Println("InstallAndInstantiateSearchCC succ!")
+}
+
 func main() {
 	// Setup correctly the GOPATH in the environment
 	if goPath := os.Getenv("GOPATH"); goPath == "" {
@@ -37,20 +79,20 @@ func main() {
 	}
 
 	// Initialize the Fabric SDK
-	fabricSdk, err := blockchain.Initialize()
+	fabricSdk, err := Initialize()
 	if err != nil {
 		fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
 	}
 
 	// Install and instantiate the chaincode
-	err = fabricSdk.InstallAndInstantiateCC()
-	if err != nil {
-		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
-	}
+//	err = fabricSdk.InstallAndInstantiateCC()
+//	if err != nil {
+//		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
+//	}
 
-	// Make the web application listening
-	app := &controllers.Application{
-		Fabric: fabricSdk,
-	}
-	web.Serve(app)
+//	// Make the web application listening
+//	app := &controllers.Application{
+//		Fabric: fabricSdk,
+//	}
+//	web.Serve(app)
 }

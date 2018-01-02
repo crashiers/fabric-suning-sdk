@@ -1,4 +1,4 @@
-package blockchain
+package main
 
 import (
 	fcutil "github.com/hyperledger/fabric-sdk-go/pkg/fabric-txn/internal/common"
