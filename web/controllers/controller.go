@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"html/template"
-	"github.com/chainhero/heroes-service/blockchain"
+	"github.com/fabric-suning-sdk/blockchain"
 )
 
 type Application struct {

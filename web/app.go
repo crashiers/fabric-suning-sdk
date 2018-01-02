@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 	"fmt"
-	"github.com/chainhero/heroes-service/web/controllers"
+	"github.com/fabric-suning-sdk/web/controllers"
 )
 
 func Serve(app *controllers.Application) {
