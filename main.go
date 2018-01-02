@@ -50,26 +50,6 @@ func init() {
         os.Exit(-1)
     }
 
-    fmt.Println("InstallAndInstantiateArtChainCC ing ...")
-    if err := base.InstallAndInstantiateArtChainCC("github.com/artchain", "v1.0"); err != nil {
-        fmt.Printf("InstallAndInstantiateArtChainCC: %v", err)
-        os.Exit(-1)
-    }
-    fmt.Println("InstallAndInstantiateArtChainCC succ!")
-
-    fmt.Println("InstallAndInstantiateAppraisalCC ing ...")
-    if err := base.InstallAndInstantiateAppraisalCC("github.com/appraisal", "v1.0"); err != nil {
-        fmt.Printf("InstallAndInstantiateAppraisalCC: %v", err)
-        os.Exit(-1)
-    }
-    fmt.Println("InstallAndInstantiateAppraisalCC succ!")
-
-    fmt.Println("InstallAndInstantiateSearchCC ing ...")
-    if err := base.InstallAndInstantiateSearchCC("github.com/search", "v1.0"); err != nil {
-        fmt.Printf("InstallAndInstantiateSearchCC: %v", err)
-        os.Exit(-1)
-    }
-    fmt.Println("InstallAndInstantiateSearchCC succ!")
 }
 
 func main() {
