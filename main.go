@@ -1,18 +1,19 @@
 package main
 
 import (
+	"fmt"
+
 	"os"
-	"runtime"
 	"path/filepath"
-	"net/http"
+	"runtime"
 )
 
 var base BaseSetupImpl
 
 type Result struct {
-    Code    int    `json:"code"`
-    Message string `json:"message"`
-    Data interface{} `json:"data"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 func defaultGOPATH() string {
@@ -34,45 +35,36 @@ func defaultGOPATH() string {
 	return ""
 }
 
-func init() {
-    base = BaseSetupImpl{
-        ConfigFile:      "../test/fixtures/config/config_test.yaml",
-        ChainID:         "testchannel",
-        ChannelConfig:   "../test/fixtures/channel/testchannel.tx",
-        ConnectEventHub: true,
-        ChainCodeID: "artchain",
-        AppraisalChainCodeID: "appraisal",
-        SearchChainCodeID: "search",
-    }
-
-    if err := base.Initialize(); err != nil {
-        fmt.Printf("Initialize: %v", err)
-        os.Exit(-1)
-    }
-
-}
-
 func main() {
 	// Setup correctly the GOPATH in the environment
 	if goPath := os.Getenv("GOPATH"); goPath == "" {
 		os.Setenv("GOPATH", defaultGOPATH())
 	}
 
+	base = BaseSetupImpl{
+		ConfigFile:      "../test/fixtures/config/config_test.yaml",
+		ChannelID:       "mychannel",
+		OrgID:           "org1Name",
+		ChannelConfig:   "../test/fixtures/channel/testchannel.tx",
+		ChainCodeID 		"testcc",
+		ConnectEventHub: true,
+	}
+
 	// Initialize the Fabric SDK
-	fabricSdk, err := Initialize()
-	if err != nil {
-		fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
+	if err := base.Initialize(); err != nil {
+		fmt.Printf("Initialize: %v", err)
+		os.Exit(-1)
 	}
 
 	// Install and instantiate the chaincode
-//	err = fabricSdk.InstallAndInstantiateCC()
-//	if err != nil {
-//		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
-//	}
+	//	err = fabricSdk.InstallAndInstantiateCC()
+	//	if err != nil {
+	//		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
+	//	}
 
-//	// Make the web application listening
-//	app := &controllers.Application{
-//		Fabric: fabricSdk,
-//	}
-//	web.Serve(app)
+	//	// Make the web application listening
+	//	app := &controllers.Application{
+	//		Fabric: fabricSdk,
+	//	}
+	//	web.Serve(app)
 }
