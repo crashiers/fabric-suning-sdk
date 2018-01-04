@@ -50,7 +50,7 @@ client:
       response: 5s
 
   cryptoconfig:
-    path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures
+    path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/
 
   credentialStore:
     path: "/tmp/hfc-kvs"
@@ -118,7 +118,7 @@ organizations:
   Org1:
     mspid: Org1MSP
 
-    cryptoPath:  peerOrganizations/org1.example.com/users/{userName}@org1.example.com/msp
+    cryptoPath:  peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
 
     peers:
       - peer0.org1.example.com
@@ -127,14 +127,19 @@ organizations:
       - ca.org1.example.com
 
     adminPrivateKey:
-      pem: "-----BEGIN PRIVATE KEY----- <etc>"
+      pem:
+        -----BEGIN PRIVATE KEY-----
+        MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgE5rcDqdT+2cClg/Q
+        Q8Jx5RnK4aK0iZesShGDUYgfhDihRANCAAQlUkRaova4o8dCL47Z7wCbVerPLhUO
+        y0DwvJl51BqTVNOdbC9bGQ6X6q/Y7/mbeVgIXvExFUoo7QBtbYllTNF/
+        -----END PRIVATE KEY-----
     signedCert:
       path: "/tmp/somepath/signed-cert.pem"
 
   Org2:
     mspid: Org2MSP
 
-    cryptoPath:  peerOrganizations/org2.example.com/users/{userName}@org2.example.com/msp
+    cryptoPath:  peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
 
     peers:
       - peer0.org2.example.com
@@ -145,7 +150,7 @@ organizations:
   ordererorg:
       mspID: "OrdererOrg"
 
-      cryptoPath: ordererOrganizations/example.com/users/{userName}@example.com/msp
+      cryptoPath: ordererOrganizations/example.com/users/Admin@example.com/msp
 
 
 orderers:
@@ -157,7 +162,7 @@ orderers:
       grpc-max-send-message-length: 15
 
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
 
 peers:
   peer0.org1.example.com:
@@ -170,15 +175,15 @@ peers:
       grpc.http2.keepalive_time: 15
 
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
 
   peer0.org2.example.com:
-    url: grpcs://peer0.org2.example.com:8051
-    eventUrl: grpcs://peer0.org2.example.com:8053
+    url: grpcs://peer0.org2.example.com:7051
+    eventUrl: grpcs://peer0.org2.example.com:7053
     grpcOptions:
       ssl-target-name-override: peer0.org2.example.com
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
 
 certificateAuthorities:
   ca.org1.example.com:
@@ -186,10 +191,10 @@ certificateAuthorities:
     httpOptions:
       verify: true
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/ca_root.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/ca_root.pem
       client:
-       keyfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
-       certfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
+       keyfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+       certfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
 
     registrar:
       enrollId: admin
@@ -200,10 +205,10 @@ certificateAuthorities:
     httpOptions:
       verify: true
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/ca_root.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/ca_root.pem
       client:
-       keyfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
-       certfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
+       keyfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+       certfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
 
     registrar:
       enrollId: admin

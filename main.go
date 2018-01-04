@@ -42,11 +42,11 @@ func main() {
 	}
 
 	base = BaseSetupImpl{
-		ConfigFile:      "../test/fixtures/config/config_test.yaml",
-		ChannelID:       "mychannel",
-		OrgID:           "org1Name",
-		ChannelConfig:   "../test/fixtures/channel/testchannel.tx",
-		ChainCodeID 		"testcc",
+		ConfigFile:      "./config.yaml",
+		ChannelID:       "testchannel1",
+		OrgID:           "Org1",
+		ChannelConfig:   "../test/fixtures/fabric/channel-artifacts/testchannel.tx",
+		ChainCodeID:     "testcc",
 		ConnectEventHub: true,
 	}
 
