@@ -35,7 +35,7 @@ func defaultGOPATH() string {
 	return ""
 }
 
-func main() {
+func init() {
 	// Setup correctly the GOPATH in the environment
 	if goPath := os.Getenv("GOPATH"); goPath == "" {
 		os.Setenv("GOPATH", defaultGOPATH())
@@ -43,28 +43,26 @@ func main() {
 
 	base = BaseSetupImpl{
 		ConfigFile:      "./config.yaml",
-		ChannelID:       "testchannel1",
+		ChannelID:       "mychannel",
 		OrgID:           "Org1",
-		ChannelConfig:   "../test/fixtures/fabric/channel-artifacts/testchannel.tx",
-		ChainCodeID:     "testcc",
+		ChannelConfig:   "./test/fixtures/fabric/channel-artifacts/channel.tx",
+		ChainCodeID:     "suningCC",
 		ConnectEventHub: true,
 	}
 
-	// Initialize the Fabric SDK
+	fmt.Printf("Start to Initialize the Fabric SDK")
 	if err := base.Initialize(); err != nil {
 		fmt.Printf("Initialize: %v", err)
 		os.Exit(-1)
 	}
 
-	// Install and instantiate the chaincode
-	//	err = fabricSdk.InstallAndInstantiateCC()
-	//	if err != nil {
-	//		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
-	//	}
+	fmt.Printf("Start to install and instantiate the suning chaincode\n")
+	if err := base.InstallAndInstantiateSuningCC(); err != nil {
+		fmt.Printf("Install and instantiate the suning chaincode failed:%v", err)
+	}
 
-	//	// Make the web application listening
-	//	app := &controllers.Application{
-	//		Fabric: fabricSdk,
-	//	}
-	//	web.Serve(app)
+}
+
+func main() {
+
 }

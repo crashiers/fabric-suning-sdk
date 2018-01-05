@@ -71,7 +71,6 @@ func (o *Orderer) SendBroadcast(envelope *fab.SignedEnvelope) (*common.Status, e
 		return nil, err
 	}
 	defer conn.Close()
-
 	broadcastStream, err := ab.NewAtomicBroadcastClient(conn).Broadcast(context.Background())
 	if err != nil {
 		return nil, errors.Wrap(err, "NewAtomicBroadcastClient failed")

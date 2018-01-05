@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"path"
 	"testing"
 	"time"
 
@@ -51,10 +50,6 @@ type BaseSetupImpl struct {
 const (
 	ExampleCCInitB    = "200"
 	ExampleCCUpgradeB = "400"
-	channelID         = "channel"
-	orgName           = "Org1"
-	orgAdmin          = "Admin"
-	ccID              = "suningCC"
 )
 
 // ExampleCC query and transaction arguments
@@ -99,78 +94,74 @@ func (setup *BaseSetupImpl) Initialize() error {
 		return errors.WithMessage(err, "SDK init failed")
 	}
 
-	//	session, err := sdk.NewPreEnrolledUserSession(setup.OrgID, "Admin")
-	//	if err != nil {
-	//		return errors.WithMessage(err, "failed getting admin user session for org")
-	//	}
+	session, err := sdk.NewPreEnrolledUserSession(setup.OrgID, "Admin")
+	if err != nil {
+		return errors.WithMessage(err, "failed getting admin user session for org")
+	}
 
-	//	sc, err := sdk.NewSystemClient(session)
-	//	if err != nil {
-	//		return errors.WithMessage(err, "NewSystemClient failed")
-	//	}
+	sc, err := sdk.NewSystemClient(session)
+	if err != nil {
+		return errors.WithMessage(err, "NewSystemClient failed")
+	}
 
-	//	setup.Client = sc
-	//	setup.AdminUser = session.Identity()
+	setup.Client = sc
+	setup.AdminUser = session.Identity()
 
-	//	channel, err := setup.GetChannel(setup.Client, setup.ChannelID, []string{setup.OrgID})
-	//	if err != nil {
-	//		return errors.Wrapf(err, "create channel (%s) failed: %v", setup.ChannelID)
-	//	}
-	//	setup.Channel = channel
+	channel, err := setup.GetChannel(setup.Client, setup.ChannelID, []string{setup.OrgID})
+	if err != nil {
+		return errors.Wrapf(err, "create channel (%s) failed: %v", setup.ChannelID)
+	}
+	setup.Channel = channel
 
 	// Channel management client is responsible for managing channels (create/update)
 	chMgmtClient, err := sdk.NewChannelMgmtClientWithOpts("Admin", &deffab.ChannelMgmtClientOpts{OrgName: "ordererorg"})
 	if err != nil {
-		fmt.Printf("Failed to create new channel management client: %s", err)
+		fmt.Errorf("Failed to create new channel management client: %s", err)
 	}
 
-	orgAdminUser, err := sdk.NewPreEnrolledUser(orgName, orgAdmin)
+	// Resource management client is responsible for managing resources (joining channels, install/instantiate/upgrade chaincodes)
+	resMgmtClient, err = sdk.NewResourceMgmtClient("Admin")
 	if err != nil {
-		fmt.Printf("NewPreEnrolledUser failed for %s,%s:%s", orgName, orgAdmin, err)
+		fmt.Errorf("Failed to create new resource management client: %s", err)
 	}
 
-	// Create channel
-	req := chmgmt.SaveChannelRequest{ChannelID: channelID, ChannelConfig: path.Join("./test/fixtures/fabric/channel-artifacts/", "channel.tx"), SigningUser: orgAdminUser}
-	fmt.Printf("aabb, %s", req)
-	if err = chMgmtClient.SaveChannel(req); err != nil {
-		fmt.Printf("Create channel failed,%s", err)
-	}
-
-	// Allow orderer to process channel creation
-	time.Sleep(time.Second * 3)
-
-	// Org resource management client (Org1 is default org)
-	orgResMgmt, err := sdk.NewResourceMgmtClient(orgAdmin)
+	// Check if primary peer has joined channel
+	alreadyJoined, err := HasPrimaryPeerJoinedChannel(sc, channel)
 	if err != nil {
-		fmt.Printf("Failed to create new resource management client: %s", err)
+		return errors.WithMessage(err, "failed while checking if primary peer has already joined channel")
 	}
 
-	// Org peers join channel
-	if err = orgResMgmt.JoinChannel(channelID); err != nil {
-		fmt.Printf("Org peers failed to JoinChannel: %s", err)
+	if !alreadyJoined {
+
+		// Channel config signing user (has to belong to one of channel orgs)
+		org1Admin, err := sdk.NewPreEnrolledUser("Org1", "Admin")
+		if err != nil {
+			return errors.WithMessage(err, "failed getting Org1 admin user")
+		}
+
+		// Create channel (or update if it already exists)
+		req := chmgmt.SaveChannelRequest{ChannelID: setup.ChannelID, ChannelConfig: setup.ChannelConfig, SigningUser: org1Admin}
+
+		if err = chMgmtClient.SaveChannel(req); err != nil {
+			return errors.WithMessage(err, "SaveChannel failed")
+		}
+
+		time.Sleep(time.Second * 3)
+
+		if err = channel.Initialize(nil); err != nil {
+			return errors.WithMessage(err, "channel init failed")
+		}
+
+		if err = resMgmtClient.JoinChannel(setup.ChannelID); err != nil {
+			return errors.WithMessage(err, "JoinChannel failed")
+		}
 	}
 
-	// Create chaincode package for example cc
-	ccPkg, err := packager.NewCCPackage("github.com/example_cc", "../../fixtures/testdata")
-	if err != nil {
-		fmt.Printf("Create chaincode package for example cc: %s", err)
+	if err := setup.setupEventHub(sc); err != nil {
+		return err
 	}
 
-	// Install example cc to org peers
-	installCCReq := resmgmt.InstallCCRequest{Name: ccID, Path: "github.com/example_cc", Version: "0", Package: ccPkg}
-	_, err = orgResMgmt.InstallCC(installCCReq)
-	if err != nil {
-		fmt.Printf("Install example cc to org peers:%s", err)
-	}
-
-	// Set up chaincode policy
-	//ccPolicy := cauthdsl.SignedByAnyMember([]string{"Org1MSP"})
-
-	// Org resource manager will instantiate 'example_cc' on channel
-	//	err = orgResMgmt.InstantiateCC(channelID, resmgmt.InstantiateCCRequest{Name: ccID, Path: "github.com/example_cc", Version: "0", Args: integration.ExampleCCInitArgs(), Policy: ccPolicy})
-	//	if err != nil {
-	//		fmt.Printf("Org resource manager will instantiate 'example_cc' on channel:%s", err)
-	//	}
+	setup.Initialized = true
 
 	return nil
 }
@@ -222,17 +213,17 @@ func (setup *BaseSetupImpl) InstallCC(name string, path string, version string, 
 // GetDeployPath ..
 func (setup *BaseSetupImpl) GetDeployPath() string {
 	pwd, _ := os.Getwd()
-	return path.Join(pwd, "../../fixtures/testdata")
+	return pwd
 }
 
-// InstallAndInstantiateExampleCC install and instantiate using resource management client
-func (setup *BaseSetupImpl) InstallAndInstantiateExampleCC() error {
+// InstallAndInstantiateSuningCC install and instantiate using resource management client
+func (setup *BaseSetupImpl) InstallAndInstantiateSuningCC() error {
 
 	if setup.ChainCodeID == "" {
 		setup.ChainCodeID = GenerateRandomID()
 	}
 
-	return setup.InstallAndInstantiateCC(setup.ChainCodeID, "github.com/example_cc", "v0", setup.GetDeployPath(), initArgs)
+	return setup.InstallAndInstantiateCC(setup.ChainCodeID, "github.com/chaincode", "v1.0", setup.GetDeployPath(), initArgs)
 }
 
 // InstallAndInstantiateCC install and instantiate using resource management client
@@ -249,7 +240,7 @@ func (setup *BaseSetupImpl) InstallAndInstantiateCC(ccName, ccPath, ccVersion, g
 	}
 
 	ccPolicy := cauthdsl.SignedByMspMember(setup.Client.UserContext().MspID())
-	return resMgmtClient.InstantiateCC("mychannel", resmgmt.InstantiateCCRequest{Name: ccName, Path: ccPath, Version: ccVersion, Args: ccArgs, Policy: ccPolicy})
+	return resMgmtClient.InstantiateCC(setup.ChannelID, resmgmt.InstantiateCCRequest{Name: ccName, Path: ccPath, Version: ccVersion, Args: ccArgs, Policy: ccPolicy})
 }
 
 // GetChannel initializes and returns a channel based on config

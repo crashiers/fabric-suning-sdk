@@ -335,7 +335,6 @@ func (c *Client) CreateChannel(request fab.CreateChannelRequest) (apitxn.Transac
 		}
 		request.TxnID = txnID
 	}
-
 	return request.TxnID, c.createOrUpdateChannel(request, haveEnvelope)
 }
 

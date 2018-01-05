@@ -155,7 +155,7 @@ organizations:
 
 orderers:
   orderer.example.com:
-    url: grpcs://orderer.example.com:7050
+    url: grpcs://106.14.183.136:7050
 
     grpcOptions:
       ssl-target-name-override: orderer.example.com
