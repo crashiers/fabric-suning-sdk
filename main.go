@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-
+	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -63,6 +65,22 @@ func init() {
 
 }
 
-func main() {
+func OutputJson(w http.ResponseWriter, code int, reason string, data interface{}) {
+	out := &Result{code, reason, data}
+	b, err := json.Marshal(out)
+	if err != nil {
+		fmt.Println("OutputJson fail:" + err.Error())
+		return
+	}
 
+	w.Write(b)
+}
+
+func main() {
+	http.HandleFunc("/block", Block)
+
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
