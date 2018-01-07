@@ -1,0 +1,257 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+#
+# The network connection profile provides client applications the information about the target
+# blockchain network that are necessary for the applications to interact with it. These are all
+# knowledge that must be acquired from out-of-band sources. This file provides such a source.
+#
+name: "global-trade-network"
+
+#
+# Any properties with an "x-" prefix will be treated as application-specific, exactly like how naming
+# in HTTP headers or swagger properties work. The SDK will simply ignore these fields and leave
+# them for the applications to process. This is a mechanism for different components of an application
+# to exchange information that are not part of the standard schema described below. In particular,
+# the "x-type" property with the "hlfv1" value example below is used by Hyperledger Composer to
+# determine the type of Fabric networks (v0.6 vs. v1.0) it needs to work with.
+#
+x-type: "hlfv1"
+x-loggingLevel: info
+
+description: "The network to be in if you want to stay in the global trade business"
+
+version: 1.0.0
+
+#
+# The client section used by GO SDK.
+#
+client:
+
+  organization: Org1
+
+  logging:
+    level: info
+
+  peer:
+    timeout:
+      connection: 3s
+      queryResponse: 45s
+      executeTxResponse: 30s
+  eventService:
+    timeout:
+      connection: 3s
+      registrationResponse: 3s
+  orderer:
+    timeout:
+      connection: 3s
+      response: 5s
+
+  cryptoconfig:
+    path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/
+
+  credentialStore:
+    path: "/tmp/hfc-kvs"
+
+    cryptoStore:
+      path: /tmp/msp
+
+    wallet: wallet-name
+
+  BCCSP:
+    security:
+     enabled: true
+     default:
+      provider: "SW"
+     hashAlgorithm: "SHA2"
+     softVerify: true
+     ephemeral: false
+     level: 256
+
+  tlsCerts:
+    systemCertPool: false
+
+    client:
+      keyfile: $GOPATH/src/github.com/fabric-suning-sdk/test/fixtures/config/mutual_tls/client_sdk_go-key.pem
+      certfile: $GOPATH/src/github.com/fabric-suning-sdk/test/fixtures/config/mutual_tls/client_sdk_go.pem
+
+channels:
+  mychannel:
+    orderers:
+      - orderer.example.com
+
+    peers:
+      peer0.org1.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer1.org1.example.com:
+        endorsingPeer: false
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer0.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer1.org2.example.com:
+        endorsingPeer: false
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    chaincodes:
+      - suningcc:v1
+      - marbles:1.0
+
+  orgchannel:
+
+    orderers:
+      - orderer.example.com
+
+    peers:
+      peer0.org1.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer0.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+organizations:
+  Org1:
+    mspid: Org1MSP
+
+    cryptoPath:  peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+
+    peers:
+      - peer0.org1.example.com
+      - peer1.org1.example.com
+
+    certificateAuthorities:
+      - ca.org1.example.com
+
+    adminPrivateKey:
+      pem:
+        -----BEGIN PRIVATE KEY-----
+        MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgE5rcDqdT+2cClg/Q
+        Q8Jx5RnK4aK0iZesShGDUYgfhDihRANCAAQlUkRaova4o8dCL47Z7wCbVerPLhUO
+        y0DwvJl51BqTVNOdbC9bGQ6X6q/Y7/mbeVgIXvExFUoo7QBtbYllTNF/
+        -----END PRIVATE KEY-----
+    signedCert:
+      path: "/tmp/somepath/signed-cert.pem"
+
+  Org2:
+    mspid: Org2MSP
+
+    cryptoPath:  peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+
+    peers:
+      - peer0.org2.example.com
+      - peer1.org2.example.com
+
+    certificateAuthorities:
+      - ca.org2.example.com
+
+  ordererorg:
+      mspID: "OrdererOrg"
+
+      cryptoPath: ordererOrganizations/example.com/users/Admin@example.com/msp
+
+
+orderers:
+  orderer.example.com:
+    url: grpcs://orderer.example.com:7050
+
+    grpcOptions:
+      ssl-target-name-override: orderer.example.com
+      grpc-max-send-message-length: 15
+
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+
+peers:
+  peer0.org1.example.com:
+    url: grpcs://peer0.org1.example.com:7051
+
+    eventUrl: grpcs://peer0.org1.example.com:7053
+
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.example.com
+      grpc.http2.keepalive_time: 15
+
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+
+  peer1.org1.example.com:
+    url: grpcs://peer1.org1.example.com:7051
+
+    eventUrl: grpcs://peer1.org1.example.com:7053
+
+    grpcOptions:
+      ssl-target-name-override: peer1.org1.example.com
+      grpc.http2.keepalive_time: 15
+
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+
+  peer0.org2.example.com:
+    url: grpcs://peer0.org2.example.com:7051
+    eventUrl: grpcs://peer0.org2.example.com:7053
+    grpcOptions:
+      ssl-target-name-override: peer0.org2.example.com
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+
+  peer1.org2.example.com:
+    url: grpcs://peer1.org2.example.com:7051
+
+    eventUrl: grpcs://peer1.org2.example.com:7053
+
+    grpcOptions:
+      ssl-target-name-override: peer1.org2.example.com
+      grpc.http2.keepalive_time: 15
+
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org2.example.com-cert.pem
+
+certificateAuthorities:
+  ca.org1.example.com:
+    url: https://ca.org1.example.com:7054
+    httpOptions:
+      verify: true
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/ca_root.pem
+      client:
+       keyfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+       certfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
+
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    caName: ca.org1.example.com
+  ca.org2.example.com:
+    url: https://ca.org2.example.com:8054
+    httpOptions:
+      verify: true
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/ca_root.pem
+      client:
+       keyfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+       certfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
+
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    caName: ca.org2.example.com

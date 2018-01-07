@@ -46,41 +46,7 @@ type BaseSetupImpl struct {
 	AdminUser       ca.User
 }
 
-// Initial B values for ExampleCC
-const (
-	ExampleCCInitB    = "200"
-	ExampleCCUpgradeB = "400"
-)
-
-// ExampleCC query and transaction arguments
-var queryArgs = [][]byte{[]byte("query"), []byte("b")}
-var txArgs = [][]byte{[]byte("move"), []byte("a"), []byte("b"), []byte("1")}
-
-// ExampleCC init and upgrade args
-var initArgs = [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte(ExampleCCInitB)}
-var upgradeArgs = [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte(ExampleCCUpgradeB)}
-
 var resMgmtClient resmgmt.ResourceMgmtClient
-
-// ExampleCCQueryArgs returns example cc query args
-func ExampleCCQueryArgs() [][]byte {
-	return queryArgs
-}
-
-// ExampleCCTxArgs returns example cc move funds args
-func ExampleCCTxArgs() [][]byte {
-	return txArgs
-}
-
-//ExampleCCInitArgs returns example cc initialization args
-func ExampleCCInitArgs() [][]byte {
-	return initArgs
-}
-
-//ExampleCCUpgradeArgs returns example cc upgrade args
-func ExampleCCUpgradeArgs() [][]byte {
-	return upgradeArgs
-}
 
 // Initialize reads configuration from file and sets up client, channel and event hub
 func (setup *BaseSetupImpl) Initialize() error {
@@ -223,7 +189,7 @@ func (setup *BaseSetupImpl) InstallAndInstantiateSuningCC() error {
 		setup.ChainCodeID = GenerateRandomID()
 	}
 
-	return setup.InstallAndInstantiateCC(setup.ChainCodeID, "github.com/chaincode", "v1.0", setup.GetDeployPath(), initArgs)
+	return setup.InstallAndInstantiateCC(setup.ChainCodeID, "github.com/chaincode", "v1.0", setup.GetDeployPath(), nil)
 }
 
 // InstallAndInstantiateCC install and instantiate using resource management client
@@ -413,3 +379,32 @@ func randomString(strlen int) string {
 	}
 	return string(result)
 }
+
+// Invoke...
+//func (setup *BaseSetupImpl) Invoke(args []string) (string, error) {
+
+//	transientDataMap := make(map[string][]byte)
+//	transientDataMap["result"] = []byte("Transient data in move funds...")
+
+//	transactionProposalResponse, txID, err := fcUtil.CreateAndSendTransactionProposal(setup.Chain, setup.ChainCodeID, setup.ChainID, args, []fabricClient.Peer{setup.Chain.GetPrimaryPeer()}, transientDataMap)
+//	if err != nil {
+//		return "", fmt.Errorf("CreateAndSendTransactionProposal return error: %v", err)
+//	}
+//	// Register for commit event
+//	done, fail := fcUtil.RegisterTxEvent(txID, setup.EventHub)
+
+//	txResponse, err := fcUtil.CreateAndSendTransaction(setup.Chain, transactionProposalResponse)
+//	if err != nil {
+//		return "", fmt.Errorf("CreateAndSendTransaction return error: %v", err)
+//	}
+//	fmt.Println(txResponse)
+//	select {
+//	case <-done:
+//	case <-fail:
+//		return "", fmt.Errorf("invoke Error received from eventhub for txid(%s) error(%v)", txID, fail)
+//	case <-time.After(time.Second * 30):
+//		return "", fmt.Errorf("invoke Didn't receive block event for txid(%s)", txID)
+//	}
+
+//	return txID, nil
+//}
