@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"testing"
 	"time"
 
 	"github.com/hyperledger/fabric-sdk-go/api/apiconfig"
@@ -301,16 +300,16 @@ func (setup *BaseSetupImpl) CreateAndSendTransaction(channel fab.Channel, resps 
 // returns a boolean channel which receives true when the event is complete
 // and an error channel for errors
 // TODO - Duplicate
-func (setup *BaseSetupImpl) RegisterTxEvent(t *testing.T, txID apitxn.TransactionID, eventHub fab.EventHub) (chan bool, chan error) {
+func (setup *BaseSetupImpl) RegisterTxEvent(txID apitxn.TransactionID, eventHub fab.EventHub) (chan bool, chan error) {
 	done := make(chan bool)
 	fail := make(chan error)
 
 	eventHub.RegisterTxEvent(txID, func(txId string, errorCode pb.TxValidationCode, err error) {
 		if err != nil {
-			t.Logf("Received error event for txid(%s)", txId)
+			fmt.Printf("Received error event for txid(%s)", txId)
 			fail <- err
 		} else {
-			t.Logf("Received success event for txid(%s)", txId)
+			fmt.Printf("Received success event for txid(%s)", txId)
 			done <- true
 		}
 	})
@@ -381,30 +380,38 @@ func randomString(strlen int) string {
 }
 
 // Invoke...
-//func (setup *BaseSetupImpl) Invoke(args []string) (string, error) {
+func (setup *BaseSetupImpl) Invoke(args [][]byte) (string, error) {
 
-//	transientDataMap := make(map[string][]byte)
-//	transientDataMap["result"] = []byte("Transient data in move funds...")
+	transientDataMap := make(map[string][]byte)
+	transientDataMap["result"] = []byte("Transient data in move funds...")
 
-//	transactionProposalResponse, txID, err := fcUtil.CreateAndSendTransactionProposal(setup.Chain, setup.ChainCodeID, setup.ChainID, args, []fabricClient.Peer{setup.Chain.GetPrimaryPeer()}, transientDataMap)
-//	if err != nil {
-//		return "", fmt.Errorf("CreateAndSendTransactionProposal return error: %v", err)
-//	}
-//	// Register for commit event
-//	done, fail := fcUtil.RegisterTxEvent(txID, setup.EventHub)
+	transactionProposalResponse, txID, err := setup.CreateAndSendTransactionProposal(setup.Channel, setup.ChainCodeID, "invoke", args, []apitxn.ProposalProcessor{setup.Channel.PrimaryPeer()}, nil)
+	if err != nil {
+		return "", fmt.Errorf("CreateAndSendTransactionProposal return error: %v", err)
+	}
+	// Register for commit event
+	done, fail := setup.RegisterTxEvent(txID, setup.EventHub)
 
-//	txResponse, err := fcUtil.CreateAndSendTransaction(setup.Chain, transactionProposalResponse)
-//	if err != nil {
-//		return "", fmt.Errorf("CreateAndSendTransaction return error: %v", err)
-//	}
-//	fmt.Println(txResponse)
-//	select {
-//	case <-done:
-//	case <-fail:
-//		return "", fmt.Errorf("invoke Error received from eventhub for txid(%s) error(%v)", txID, fail)
-//	case <-time.After(time.Second * 30):
-//		return "", fmt.Errorf("invoke Didn't receive block event for txid(%s)", txID)
-//	}
+	txResponse, err := setup.CreateAndSendTransaction(setup.Channel, transactionProposalResponse)
+	if err != nil {
+		return "", fmt.Errorf("CreateAndSendTransaction return error: %v", err)
+	}
+	fmt.Println(txResponse)
+	select {
+	case <-done:
+	case <-fail:
+		return "", fmt.Errorf("invoke Error received from eventhub for txid(%s) error(%v)", txID, fail)
+	case <-time.After(time.Second * 30):
+		return "", fmt.Errorf("invoke Didn't receive block event for txid(%s)", txID)
+	}
 
-//	return txID, nil
-//}
+	return txID.ID, nil
+}
+
+func (setup *BaseSetupImpl) Query(args [][]byte) (string, error) {
+	transactionProposalResponses, _, err := setup.CreateAndSendTransactionProposal(setup.Channel, setup.ChainCodeID, "invoke", args, []apitxn.ProposalProcessor{setup.Channel.PrimaryPeer()}, nil)
+	if err != nil {
+		return "", fmt.Errorf("CreateAndSendTransactionProposal return error: %v", err)
+	}
+	return string(transactionProposalResponses[0].ProposalResponse.GetResponse().Payload), nil
+}

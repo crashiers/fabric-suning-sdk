@@ -62,7 +62,6 @@ func init() {
 	if err := base.InstallAndInstantiateSuningCC(); err != nil {
 		fmt.Printf("Install and instantiate the suning chaincode failed:%v", err)
 	}
-
 }
 
 func OutputJson(w http.ResponseWriter, code int, reason string, data interface{}) {
@@ -79,6 +78,7 @@ func OutputJson(w http.ResponseWriter, code int, reason string, data interface{}
 func main() {
 	http.HandleFunc("/block", Block)
 	http.HandleFunc("/createOrg", CreatOrg)
+	http.HandleFunc("/queryOrg", QueryOrg)
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
