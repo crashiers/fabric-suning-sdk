@@ -11,8 +11,8 @@ func QueryTransaction(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "Action, Module")
 	}
 
-	if r.Method != "GET" {
-		OutputJson(w, -1, "requset method is not get", nil)
+	if r.Method != "POST" {
+		OutputJson(w, -1, "requset method is not post", nil)
 		return
 	}
 

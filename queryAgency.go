@@ -11,6 +11,11 @@ func QueryAgency(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "Action, Module")
 	}
 
+	if r.Method != "GET" {
+		OutputJson(w, -1, "requset method is not get", nil)
+		return
+	}
+
 	var queryAgencyArgs = [][]byte{[]byte("queryAgency")}
 
 	value, err := base.Query(queryAgencyArgs)
