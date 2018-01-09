@@ -47,7 +47,7 @@ func init() {
 		ConfigFile:      "./config.yaml",
 		ChannelID:       "mychannel",
 		OrgID:           "Org1",
-		ChannelConfig:   "./test/fixtures/fabric/channel-artifacts/channel.tx",
+		ChannelConfig:   "./test/fixtures/fabric/channel-artifacts/mychannel.tx",
 		ChainCodeID:     "suningCC",
 		ConnectEventHub: true,
 	}
