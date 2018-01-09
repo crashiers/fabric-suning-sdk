@@ -85,16 +85,18 @@ channels:
     peers:
       peer0.org1.example.com:
         endorsingPeer: true
-
         chaincodeQuery: true
-
         ledgerQuery: true
-
+        eventSource: true
+		
+      peer0.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
         eventSource: true
 
     chaincodes:
-      - example02:v1
-      - marbles:1.0
+      - suningcc:v1
 
   orgchannel:
 
@@ -200,6 +202,7 @@ certificateAuthorities:
       enrollId: admin
       enrollSecret: adminpw
     caName: ca.org1.example.com
+
   ca.org2.example.com:
     url: https://ca.org2.example.com:8054
     httpOptions:
