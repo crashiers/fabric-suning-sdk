@@ -11,8 +11,8 @@ func QueryOrg(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "Action, Module")
 	}
 
-	if r.Method != "POST" {
-		OutputJson(w, -1, "requset method is not post", nil)
+	if r.Method != "GET" {
+		OutputJson(w, -1, "requset method is not get", nil)
 		return
 	}
 
@@ -23,7 +23,7 @@ func QueryOrg(w http.ResponseWriter, r *http.Request) {
 
 	var queryOrgArgs = [][]byte{[]byte("queryOrg"), []byte(r.PostFormValue("orgId"))}
 
-	value, err := base.Invoke(queryOrgArgs)
+	value, err := base.Query(queryOrgArgs)
 	if err != nil {
 		OutputJson(w, -1, err.Error(), nil)
 		return

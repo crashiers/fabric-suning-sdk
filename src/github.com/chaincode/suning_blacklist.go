@@ -28,9 +28,9 @@ var (
 	loc           *time.Location
 )
 
-func init() {
-	loc, _ = time.LoadLocation("Asia/Shanghai")
-}
+//func init() {
+//	loc, _ = time.LoadLocation("Asia/Shanghai")
+//}
 
 // SimpleChaincode example simple Chaincode implementation
 type BlacklistChaincode struct {
@@ -226,6 +226,7 @@ func sha1s(s string) string {
 // Create Platform Agency , and issue initial credits.
 func (t *BlacklistChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("########### BlacklistChain Init ###########")
+	loc, _ = time.LoadLocation("Asia/Shanghai")
 	agency := &Agency{
 		Name:        "Agency",
 		Addr:        sha1s("Agency"),
