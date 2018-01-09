@@ -7,6 +7,7 @@ Chaincode for Suning Corp.
 package main
 
 import (
+	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
@@ -21,9 +22,9 @@ import (
 )
 
 var (
-	initialCredit = 1e8
-	layout        = "2018-01-06 19:01:02"
-	date          = "20180106190102"
+	initialCredit int64 = 1e8
+	layout              = "2018-01-06 19:01:02"
+	date                = "20180106190102"
 	loc           *time.Location
 )
 
@@ -32,7 +33,7 @@ func init() {
 }
 
 // SimpleChaincode example simple Chaincode implementation
-type SimpleChaincode struct {
+type BlacklistChaincode struct {
 }
 
 type BlackRecord struct {
@@ -40,8 +41,8 @@ type BlackRecord struct {
 	RecordId         string `json:"recordId"`
 	ClientId         string `json:"clientId"`
 	ClientName       string `json:"clientName"`
-	NegativeType     int    `json:"negativeType"`
-	NegativeSeverity int    `json:"negativeSeverity"`
+	NegativeType     string `json:"negativeType"`
+	NegativeSeverity string `json:"negativeSeverity"`
 	NegativeInfo     string `json:"negativeInfo"`
 	OrgAddr          string `json:"orgAddr"`
 	Searchable       bool   `json:"searchable"`
@@ -65,7 +66,7 @@ func (blackRecord *BlackRecord) putBlackRecord(stub shim.ChaincodeStubInterface)
 	return nil
 }
 
-func (t *SimpleChaincode) getBlackRecord(stub shim.ChaincodeStubInterface, id string) (*BlackRecord, error) {
+func (t *BlacklistChaincode) getBlackRecord(stub shim.ChaincodeStubInterface, id string) (*BlackRecord, error) {
 	fmt.Println("RecordId:" + id)
 
 	var record BlackRecord
@@ -89,7 +90,7 @@ type Transaction struct {
 	TxId       string `json:"txId"`
 	From       string `json:"from"`
 	To         string `json:"to"`
-	Credit     int    `json:"credit"`
+	Credit     int64  `json:"credit"`
 	CreateTime string `json:"createTime"`
 	UpdateTime string `json:"updateTime"`
 }
@@ -110,7 +111,7 @@ func (tx *Transaction) putTransaction(stub shim.ChaincodeStubInterface) error {
 	return nil
 }
 
-func (t *SimpleChaincode) getTransaction(stub shim.ChaincodeStubInterface, id string) (*Transaction, error) {
+func (t *BlacklistChaincode) getTransaction(stub shim.ChaincodeStubInterface, id string) (*Transaction, error) {
 	fmt.Println("TxId:" + id)
 
 	var tx Transaction
@@ -132,8 +133,8 @@ func (t *SimpleChaincode) getTransaction(stub shim.ChaincodeStubInterface, id st
 type Agency struct {
 	Name        string `json:"name"`
 	Addr        string `json:"addr"`
-	Credit      int    `json:"credit"`
-	IssueCredit int    `json:"issueCredit"`
+	Credit      int64  `json:"credit"`
+	IssueCredit int64  `json:"issueCredit"`
 	CreateTime  string `json:"createTime"`
 	UpdateTime  string `json:"updateTime"`
 }
@@ -154,7 +155,7 @@ func (agency *Agency) putAgency(stub shim.ChaincodeStubInterface) error {
 	return nil
 }
 
-func (t *SimpleChaincode) getAgency(stub shim.ChaincodeStubInterface) (*Agency, error) {
+func (t *BlacklistChaincode) getAgency(stub shim.ChaincodeStubInterface) (*Agency, error) {
 	fmt.Println("Get Agency")
 
 	var agency Agency
@@ -177,7 +178,7 @@ type Org struct {
 	OrgId      string `json:"orgId"`
 	OrgName    string `json:"orgName"`
 	OrgAddr    string `json:"orgAddr"`
-	OrgCredit  int    `json:"orgCredit"`
+	OrgCredit  int64  `json:"orgCredit"`
 	CreateTime string `json:"createTime"`
 	UpdateTime string `json:"updateTime"`
 }
@@ -198,7 +199,7 @@ func (org *Org) putOrg(stub shim.ChaincodeStubInterface) error {
 	return nil
 }
 
-func (t *SimpleChaincode) getOrg(stub shim.ChaincodeStubInterface, id string) (*Org, error) {
+func (t *BlacklistChaincode) getOrg(stub shim.ChaincodeStubInterface, id string) (*Org, error) {
 	fmt.Println("OrgId:" + id)
 
 	var org Org
@@ -223,7 +224,8 @@ func sha1s(s string) string {
 }
 
 // Create Platform Agency , and issue initial credits.
-func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *BlacklistChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
+	fmt.Println("########### BlacklistChain Init ###########")
 	agency := &Agency{
 		Name:        "Agency",
 		Addr:        sha1s("Agency"),
@@ -239,7 +241,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
-func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *BlacklistChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("########### BlacklistChain Invoke ###########")
 	function, args := stub.GetFunctionAndParameters()
 	fmt.Println("function:" + function)
@@ -278,7 +280,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	}
 }
 
-func (t *SimpleChaincode) createOrg(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *BlacklistChaincode) createOrg(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(args)
 	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
@@ -301,13 +303,16 @@ func (t *SimpleChaincode) createOrg(stub shim.ChaincodeStubInterface, args []str
 	return shim.Success(nil)
 }
 
-func (t *SimpleChaincode) submitRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *BlacklistChaincode) submitRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(args)
 	if len(args) != 8 {
 		return shim.Error("Incorrect number of arguments. Expecting 7")
 	}
 
-	org := t.getOrg(stub, args[1])
+	org, err := t.getOrg(stub, args[1])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 	record := &BlackRecord{
 		DocType:          "BlackRecord",
 		RecordId:         args[2],
@@ -321,7 +326,7 @@ func (t *SimpleChaincode) submitRecord(stub shim.ChaincodeStubInterface, args []
 		CreateTime:       time.Now().In(loc).Format(layout),
 		UpdateTime:       time.Now().In(loc).Format(layout),
 	}
-	err := record.putBlackRecord(stub)
+	err = record.putBlackRecord(stub)
 	if err != nil {
 		fmt.Println("submitRecord putBlackRecord fail:", err.Error())
 		return shim.Error("submitRecord putBlackRecord fail:" + err.Error())
@@ -330,22 +335,27 @@ func (t *SimpleChaincode) submitRecord(stub shim.ChaincodeStubInterface, args []
 	return shim.Success(nil)
 }
 
-func (t *SimpleChaincode) deleteRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *BlacklistChaincode) deleteRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(args)
 
 	var deleteType string
 
-	org := t.getOrg(stub, args[1])
+	org, err := t.getOrg(stub, args[1])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 	deleteType = args[2]
 	if deleteType == "deleteById" {
 		if len(args) != 4 {
 			return shim.Error("Incorrect number of arguments. Expecting 3")
 		}
 		arr := strings.Split(args[3], ",")
-		var record BlackRecord
-		for _, id = range arr {
-			record = t.getBlackRecord(stub, id)
-			if record.Searchable == false {
+		var record *BlackRecord
+		for _, id := range arr {
+			record, err = t.getBlackRecord(stub, id)
+			if err != nil {
+				return shim.Error(err.Error())
+			} else if record.Searchable == false {
 				fmt.Println("record-%s does not exist", id)
 			} else if record.OrgAddr == org.OrgAddr {
 				record.Searchable = false
@@ -353,7 +363,7 @@ func (t *SimpleChaincode) deleteRecord(stub shim.ChaincodeStubInterface, args []
 				record.putBlackRecord(stub)
 				fmt.Println("record-%s is deleted ", id)
 			} else {
-				fmt.Println("record-%s does not belong to org-%s", id, orgId)
+				fmt.Println("record-%s does not belong to org-%s", id, org.OrgId)
 			}
 		}
 	} else if deleteType == "deleteByOrg" {
@@ -363,7 +373,7 @@ func (t *SimpleChaincode) deleteRecord(stub shim.ChaincodeStubInterface, args []
 	return shim.Success(nil)
 }
 
-func (t *SimpleChaincode) queryRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *BlacklistChaincode) queryRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(args)
 	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
@@ -404,7 +414,7 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 
 	bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
-		_, value, err := resultsIterator.Next()
+		kv, err := resultsIterator.Next()
 		if err != nil {
 			return nil, err
 		}
@@ -412,7 +422,7 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 		if bArrayMemberAlreadyWritten == true {
 			buffer.WriteString(",")
 		}
-		buffer.WriteString(string(value))
+		buffer.WriteString(string(kv.Value))
 		bArrayMemberAlreadyWritten = true
 	}
 	buffer.WriteString("]")
@@ -421,7 +431,7 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 	return buffer.Bytes(), nil
 }
 
-func (t *SimpleChaincode) queryTransaction(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *BlacklistChaincode) queryTransaction(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(args)
 	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
@@ -447,10 +457,10 @@ func (t *SimpleChaincode) queryTransaction(stub shim.ChaincodeStubInterface, arg
 	return shim.Success(queryResults)
 }
 
-func (t *SimpleChaincode) issueCredit(stub shim.ChaincodeStubInterface, args string) pb.Response {
-	var creditNumber int
+func (t *BlacklistChaincode) issueCredit(stub shim.ChaincodeStubInterface, args string) pb.Response {
+	var creditNumber int64
 
-	creditNumber, err = strconv.Atoi(args)
+	creditNumber, err := strconv.ParseInt(args, 10, 64)
 	if err != nil {
 		return shim.Error("Expecting integer value for asset holding")
 	}
@@ -471,7 +481,7 @@ func (t *SimpleChaincode) issueCredit(stub shim.ChaincodeStubInterface, args str
 	tx := &Transaction{
 		DocType:    "Transaction",
 		TxId:       time.Now().In(loc).Format(date),
-		From:       0,
+		From:       "0",
 		To:         agency.Addr,
 		Credit:     creditNumber,
 		CreateTime: time.Now().In(loc).Format(layout),
@@ -486,17 +496,17 @@ func (t *SimpleChaincode) issueCredit(stub shim.ChaincodeStubInterface, args str
 	return shim.Success(nil)
 }
 
-func (t *SimpleChaincode) issueCreditToOrg(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *BlacklistChaincode) issueCreditToOrg(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(args)
 	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
 	var orgId string
-	var creditNumber int
+	var creditNumber int64
 
 	orgId = args[1]
-	creditNumber, err = strconv.Atoi(args[2])
+	creditNumber, err := strconv.ParseInt(args[2], 10, 64)
 	if err != nil {
 		return shim.Error("Expecting integer value for asset holding")
 	}
@@ -553,7 +563,7 @@ func (t *SimpleChaincode) issueCreditToOrg(stub shim.ChaincodeStubInterface, arg
 	return shim.Success(nil)
 }
 
-func (t *SimpleChaincode) transfer(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *BlacklistChaincode) transfer(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(args)
 	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments. Expecting 3")
@@ -561,11 +571,11 @@ func (t *SimpleChaincode) transfer(stub shim.ChaincodeStubInterface, args []stri
 
 	var fromId string
 	var toId string
-	var creditNumber int
+	var creditNumber int64
 
 	fromId = args[1]
 	toId = args[2]
-	creditNumber, err = strconv.Atoi(args[3])
+	creditNumber, err := strconv.ParseInt(args[3], 10, 64)
 	if err != nil {
 		return shim.Error("Expecting integer value for asset holding")
 	}
@@ -622,13 +632,13 @@ func (t *SimpleChaincode) transfer(stub shim.ChaincodeStubInterface, args []stri
 	return shim.Success(nil)
 }
 
-func (t *SimpleChaincode) queryAgency(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *BlacklistChaincode) queryAgency(stub shim.ChaincodeStubInterface) pb.Response {
 	agency, err := t.getAgency(stub)
 	if err != nil {
 		fmt.Println("queryAgency getAgency fail:", err.Error())
 		return shim.Error(err.Error())
 	}
-	agencyBytes, err = json.Marshal(agency)
+	agencyBytes, err := json.Marshal(agency)
 	if err != nil {
 		fmt.Println("queryAgency Marshal fail:", err.Error())
 		return shim.Error(err.Error())
@@ -637,13 +647,13 @@ func (t *SimpleChaincode) queryAgency(stub shim.ChaincodeStubInterface) pb.Respo
 	return shim.Success(agencyBytes)
 }
 
-func (t *SimpleChaincode) queryOrg(stub shim.ChaincodeStubInterface, args string) pb.Response {
+func (t *BlacklistChaincode) queryOrg(stub shim.ChaincodeStubInterface, args string) pb.Response {
 	org, err := t.getOrg(stub, args)
 	if err != nil {
 		fmt.Println("queryOrg getOrg fail:", err.Error())
 		return shim.Error(err.Error())
 	}
-	orgBytes, err = json.Marshal(org)
+	orgBytes, err := json.Marshal(org)
 	if err != nil {
 		fmt.Println("queryOrg Marshal fail:", err.Error())
 		return shim.Error(err.Error())
@@ -653,7 +663,7 @@ func (t *SimpleChaincode) queryOrg(stub shim.ChaincodeStubInterface, args string
 }
 
 func main() {
-	err := shim.Start(new(SimpleChaincode))
+	err := shim.Start(new(BlacklistChaincode))
 	if err != nil {
 		fmt.Printf("Error starting Simple chaincode: %s", err)
 	}

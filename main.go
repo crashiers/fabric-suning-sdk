@@ -77,7 +77,7 @@ func OutputJson(w http.ResponseWriter, code int, reason string, data interface{}
 
 func main() {
 	http.HandleFunc("/block", Block)
-	http.HandleFunc("/createOrg", CreatOrg)
+	http.HandleFunc("/createOrg", CreateOrg)
 	http.HandleFunc("/queryOrg", QueryOrg)
 
 	err := http.ListenAndServe(":8080", nil)
