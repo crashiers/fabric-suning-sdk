@@ -1,0 +1,90 @@
+version: '2'
+
+services:
+
+  orderer.example.com:  # orderer node for example org
+    image: hyperledger/fabric-orderer:x86_64-1.0.5
+    restart: always
+    container_name: orderer.example.com
+    hostname: orderer.example.com
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=DEBUG  # default: INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0 # default: 127.0.0.1
+      - ORDERER_GENERAL_GENESISMETHOD=file # default: provisional
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP # default: DEFAULT
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_LEDGERTYPE=file
+      - ORDERER_GENERAL_BATCHTIMEOUT=1s
+      - ORDERER_GENERAL_MAXMESSAGECOUNT=10
+      - ORDERER_GENERAL_MAXWINDOWSIZE=1000
+      - ORDERER_GENERAL_TLS_ENABLED=true # default: false
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
+    ports:
+      - "7050:7050"
+    volumes:
+    - ./kafka/channel-artifacts/orderer.genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+    - ./kafka/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
+    - ./kafka/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
+    command: orderer
+    depends_on:
+      - kafka0
+      - kafka1
+      - kafka2
+      - kafka3
+
+# ZooKeeper services, at least 3 nodes
+  zookeeper0:
+    extends:
+      file: peer-base/peer-base.yaml
+      service: zookeeper0
+
+  zookeeper1:
+    extends:
+      file: peer-base/peer-base.yaml
+      service: zookeeper1
+
+  zookeeper2:
+    extends:
+      file: peer-base/peer-base.yaml
+      service: zookeeper2
+
+# Kafka services, at least 4 node to tolerant work with 1 node failure
+  kafka0:
+    extends:
+      file: peer-base/peer-base.yaml
+      service: kafka0
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+
+  kafka1:
+    extends:
+      file: peer-base/peer-base.yaml
+      service: kafka1
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+
+  kafka2:
+    extends:
+      file: peer-base/peer-base.yaml
+      service: kafka2
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+
+  kafka3:
+    extends:
+      file: peer-base/peer-base.yaml
+      service: kafka3
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2

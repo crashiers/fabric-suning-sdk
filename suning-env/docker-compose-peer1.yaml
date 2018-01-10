@@ -1,0 +1,73 @@
+version: '2'
+
+services:
+
+  couchdb1:
+    container_name: couchdb1
+    image: hyperledger/fabric-couchdb:x86_64-1.0.5
+    volumes:
+      - /var/hyperledger/couchdb0:/opt/couchdb/data 
+    ports:
+      - 5984:5984
+
+  peer0.org2.example.com:
+    container_name: peer0.org2.example.com
+    extends:
+      file: peer-base/peer-base.yaml
+      service: peer-base    
+    hostname: peer0.org2.example.com
+    environment:
+      - CORE_PEER_ID=peer0.org2.example.com
+      - CORE_PEER_ADDRESS=peer0.org2.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org2.example.com:7052
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./kafka/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp:/etc/hyperledger/fabric/msp
+      - ./kafka/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 7051:7051
+      - 7052:7052
+      - 7053:7053
+    depends_on:
+      - couchdb1
+    extra_hosts:
+      - "orderer.example.com:172.19.187.117"
+      - "peer0.org1.example.com:172.19.187.118"
+
+  cli: # client node
+    image: hyperledger/fabric-tools:x86_64-1.0.5
+    restart: always
+    tty: true
+    container_name: fabric-cli
+    hostname: fabric-cli
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.org2.example.com:7051
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+      - GODEBUG=netdns=go
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    volumes:
+      - ../../src/github.com/kafka/chaincode/:/opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/go
+      - /var/run/:/host/var/run/
+      - ./kafka/crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+      - ./kafka/channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - peer0.org2.example.com
+    extra_hosts:
+      - "orderer.example.com:172.19.187.117"
+      - "peer0.org1.example.com:172.19.187.118"
+      - "peer0.org2.example.com:172.19.187.119"
+      - "peer0.org3.example.com:172.19.187.116"
+      - "peer0.org4.example.com:172.19.187.120"
