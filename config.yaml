@@ -50,7 +50,7 @@ client:
       response: 5s
 
   cryptoconfig:
-    path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabric/crypto-config/
+    path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/
 
   credentialStore:
     path: "/tmp/hfc-kvs"
@@ -121,9 +121,9 @@ organizations:
     adminPrivateKey:
       pem:
         -----BEGIN PRIVATE KEY-----
-        MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgE5rcDqdT+2cClg/Q
-        Q8Jx5RnK4aK0iZesShGDUYgfhDihRANCAAQlUkRaova4o8dCL47Z7wCbVerPLhUO
-        y0DwvJl51BqTVNOdbC9bGQ6X6q/Y7/mbeVgIXvExFUoo7QBtbYllTNF/
+        MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgJT/cmfXVELouQDtH
+        i72vDHTrDLfvT4WzNd1QX9FFvMWhRANCAAT3xWk2Hbocu0vrA/Jsz7RH7Po2KX6e
+        tNsUn6c8OAyHotCnfbM64oIXJ0RzOhYeV0xrltOzRjryLdz2QBGiObo0
         -----END PRIVATE KEY-----
     signedCert:
       path: "/tmp/somepath/signed-cert.pem"
@@ -176,7 +176,7 @@ peers:
       ssl-target-name-override: peer0.org1.example.com
       grpc.http2.keepalive_time: 15
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
 
   peer0.org2.example.com:
     url: grpcs://peer0.org2.example.com:7051
@@ -184,7 +184,7 @@ peers:
     grpcOptions:
       ssl-target-name-override: peer0.org2.example.com
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
 
   peer0.org3.example.com:
     url: grpcs://peer0.org3.example.com:7051
@@ -192,7 +192,7 @@ peers:
     grpcOptions:
       ssl-target-name-override: peer0.org3.example.com
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/crypto-config/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
 
   peer0.org4.example.com:
     url: grpcs://peer0.org4.example.com:7051
@@ -200,7 +200,7 @@ peers:
     grpcOptions:
       ssl-target-name-override: peer0.org4.example.com
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/crypto-config/peerOrganizations/org4.example.com/tlsca/tlsca.org4.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/peerOrganizations/org4.example.com/tlsca/tlsca.org4.example.com-cert.pem
 
 certificateAuthorities:
   ca.org1.example.com:

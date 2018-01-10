@@ -45,7 +45,7 @@ func init() {
 
 	base = BaseSetupImpl{
 		ConfigFile:      "./config.yaml",
-		ChannelID:       "suningchannel",
+		ChannelID:       "sunningchannel",
 		OrgID:           "Org1",
 		ChannelConfig:   "./suning-env/kafka/channel-artifacts/sunningchannel.tx",
 		ChainCodeID:     "suningCC",
