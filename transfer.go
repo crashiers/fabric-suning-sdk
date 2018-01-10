@@ -16,12 +16,12 @@ func Transfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.PostFormValue("fromId") == "" || r.PostFormValue("toId") == "" || r.PostFormValue("creditNumber") == "" {
+	if r.PostFormValue("fromId") == "" || r.PostFormValue("toAddr") == "" || r.PostFormValue("creditNumber") == "" {
 		OutputJson(w, -1, "request is null", nil)
 		return
 	}
 
-	var transferArgs = [][]byte{[]byte("transfer"), []byte(r.PostFormValue("fromId")), []byte(r.PostFormValue("toId")), []byte(r.PostFormValue("creditNumber"))}
+	var transferArgs = [][]byte{[]byte("transfer"), []byte(r.PostFormValue("fromId")), []byte(r.PostFormValue("toAddr")), []byte(r.PostFormValue("creditNumber"))}
 
 	value, err := base.Invoke(transferArgs)
 	if err != nil {

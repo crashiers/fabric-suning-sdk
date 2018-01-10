@@ -16,12 +16,12 @@ func DeleteRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.PostFormValue("orgId") == "" || r.PostFormValue("deleteType") == "" || r.PostFormValue("recordId") == "" {
+	if r.PostFormValue("orgId") == "" || r.PostFormValue("recordId") == "" {
 		OutputJson(w, -1, "request is null", nil)
 		return
 	}
 
-	var deleteRecordArgs = [][]byte{[]byte("deleteRecord"), []byte(r.PostFormValue("orgId")), []byte(r.PostFormValue("deleteType")), []byte(r.PostFormValue("recordId"))}
+	var deleteRecordArgs = [][]byte{[]byte("deleteRecord"), []byte(r.PostFormValue("orgId")), []byte(r.PostFormValue("recordId"))}
 
 	value, err := base.Invoke(deleteRecordArgs)
 	if err != nil {

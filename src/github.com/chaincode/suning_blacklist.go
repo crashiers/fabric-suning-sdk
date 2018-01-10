@@ -14,7 +14,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -45,12 +44,14 @@ type BlackRecord struct {
 	NegativeSeverity string `json:"negativeSeverity"`
 	NegativeInfo     string `json:"negativeInfo"`
 	OrgAddr          string `json:"orgAddr"`
-	Searchable       bool   `json:"searchable"`
+	Searchable       string `json:"searchable"`
 	CreateTime       string `json:"createTime"`
 	UpdateTime       string `json:"updateTime"`
 }
 
 func (blackRecord *BlackRecord) putBlackRecord(stub shim.ChaincodeStubInterface) error {
+	fmt.Println(blackRecord)
+
 	brBytes, err := json.Marshal(blackRecord)
 	if err != nil {
 		fmt.Println("putBlackRecord Marshal fail:", err.Error())
@@ -96,6 +97,8 @@ type Transaction struct {
 }
 
 func (tx *Transaction) putTransaction(stub shim.ChaincodeStubInterface) error {
+	fmt.Println(tx)
+
 	txbytes, err := json.Marshal(tx)
 	if err != nil {
 		fmt.Println("putTransaction Marshal fail:", err.Error())
@@ -140,6 +143,8 @@ type Agency struct {
 }
 
 func (agency *Agency) putAgency(stub shim.ChaincodeStubInterface) error {
+	fmt.Println(agency)
+
 	agencyBytes, err := json.Marshal(agency)
 	if err != nil {
 		fmt.Println("putAgency Marshal fail:", err.Error())
@@ -175,6 +180,7 @@ func (t *BlacklistChaincode) getAgency(stub shim.ChaincodeStubInterface) (*Agenc
 }
 
 type Org struct {
+	DocType    string `json:"docType"`
 	OrgId      string `json:"orgId"`
 	OrgName    string `json:"orgName"`
 	OrgAddr    string `json:"orgAddr"`
@@ -184,6 +190,8 @@ type Org struct {
 }
 
 func (org *Org) putOrg(stub shim.ChaincodeStubInterface) error {
+	fmt.Println(org)
+
 	orgBytes, err := json.Marshal(org)
 	if err != nil {
 		fmt.Println("putOrg Marshal fail:", err.Error())
@@ -216,6 +224,38 @@ func (t *BlacklistChaincode) getOrg(stub shim.ChaincodeStubInterface, id string)
 
 	fmt.Println(org)
 	return &org, nil
+}
+
+func (t *BlacklistChaincode) getOrgByAddr(stub shim.ChaincodeStubInterface, addr string) (*Org, error) {
+	fmt.Println("OrgAddr:" + addr)
+
+	var org Org
+	var orgBytes []byte
+
+	queryString := fmt.Sprintf("{\"selector\":{\"docType\":\"Org\", \"orgAddr\":\"%s\"}}", addr)
+	resultsIterator, err := stub.GetQueryResult(queryString)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	for resultsIterator.HasNext() {
+		kv, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+		orgBytes = kv.Value
+	}
+
+	err = json.Unmarshal(orgBytes, &org)
+	if err != nil {
+		fmt.Println("getOrgByAddr Unmarshal fail:", err.Error())
+		return nil, err
+	}
+
+	fmt.Println(org)
+	return &org, nil
+
 }
 
 func sha1s(s string) string {
@@ -288,6 +328,7 @@ func (t *BlacklistChaincode) createOrg(stub shim.ChaincodeStubInterface, args []
 	}
 
 	org := &Org{
+		DocType:    "Org",
 		OrgId:      args[1],
 		OrgName:    args[2],
 		OrgAddr:    sha1s(args[1]),
@@ -323,7 +364,7 @@ func (t *BlacklistChaincode) submitRecord(stub shim.ChaincodeStubInterface, args
 		NegativeSeverity: args[6],
 		NegativeInfo:     args[7],
 		OrgAddr:          org.OrgAddr,
-		Searchable:       true,
+		Searchable:       "true",
 		CreateTime:       time.Now().In(loc).Format(layout),
 		UpdateTime:       time.Now().In(loc).Format(layout),
 	}
@@ -338,38 +379,28 @@ func (t *BlacklistChaincode) submitRecord(stub shim.ChaincodeStubInterface, args
 
 func (t *BlacklistChaincode) deleteRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(args)
-
-	var deleteType string
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
 
 	org, err := t.getOrg(stub, args[1])
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	deleteType = args[2]
-	if deleteType == "deleteById" {
-		if len(args) != 4 {
-			return shim.Error("Incorrect number of arguments. Expecting 3")
-		}
-		arr := strings.Split(args[3], ",")
-		var record *BlackRecord
-		for _, id := range arr {
-			record, err = t.getBlackRecord(stub, id)
-			if err != nil {
-				return shim.Error(err.Error())
-			} else if record.Searchable == false {
-				fmt.Println("record-%s does not exist", id)
-			} else if record.OrgAddr == org.OrgAddr {
-				record.Searchable = false
-				record.UpdateTime = time.Now().In(loc).Format(layout)
-				record.putBlackRecord(stub)
-				fmt.Println("record-%s is deleted ", id)
-			} else {
-				fmt.Println("record-%s does not belong to org-%s", id, org.OrgId)
-			}
-		}
-	} else if deleteType == "deleteByOrg" {
-		//TODO
+
+	record, err := t.getBlackRecord(stub, args[2])
+	if err != nil {
+		return shim.Error(err.Error())
 	}
+	if record.Searchable == "false" {
+		return shim.Error("record does not exist")
+	} else if record.OrgAddr != org.OrgAddr {
+		return shim.Error("record does not belong to org")
+	}
+
+	record.Searchable = "false"
+	record.UpdateTime = time.Now().In(loc).Format(layout)
+	record.putBlackRecord(stub)
 
 	return shim.Success(nil)
 }
@@ -571,11 +602,11 @@ func (t *BlacklistChaincode) transfer(stub shim.ChaincodeStubInterface, args []s
 	}
 
 	var fromId string
-	var toId string
+	var toAddr string
 	var creditNumber int64
 
 	fromId = args[1]
-	toId = args[2]
+	toAddr = args[2]
 	creditNumber, err := strconv.ParseInt(args[3], 10, 64)
 	if err != nil {
 		return shim.Error("Expecting integer value for asset holding")
@@ -589,7 +620,7 @@ func (t *BlacklistChaincode) transfer(stub shim.ChaincodeStubInterface, args []s
 		return shim.Error("Not enough credit for Org " + fromOrg.OrgId)
 	}
 
-	toOrg, err := t.getOrg(stub, toId)
+	toOrg, err := t.getOrgByAddr(stub, toAddr)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
