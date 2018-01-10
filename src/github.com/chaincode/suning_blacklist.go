@@ -22,14 +22,14 @@ import (
 
 var (
 	initialCredit int64 = 1e8
-	layout              = "2018-01-06 19:01:02"
-	date                = "20180106190102"
+	layout              = "2006-01-02 15:04:05"
+	date                = "20060102150405"
 	loc           *time.Location
 )
 
-//func init() {
-//	loc, _ = time.LoadLocation("Asia/Shanghai")
-//}
+func init() {
+	loc, _ = time.LoadLocation("Asia/Shanghai")
+}
 
 // SimpleChaincode example simple Chaincode implementation
 type BlacklistChaincode struct {
@@ -266,7 +266,6 @@ func sha1s(s string) string {
 // Create Platform Agency , and issue initial credits.
 func (t *BlacklistChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("########### BlacklistChain Init ###########")
-	loc, _ = time.LoadLocation("Asia/Shanghai")
 	agency := &Agency{
 		Name:        "Agency",
 		Addr:        sha1s("Agency"),
