@@ -78,7 +78,7 @@ client:
       certfile: $GOPATH/src/github.com/fabric-suning-sdk/test/fixtures/config/mutual_tls/client_sdk_go.pem
 
 channels:
-  sunningchannel:
+  suningchannel:
     orderers:
       - orderer.example.com
 
