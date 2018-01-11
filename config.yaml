@@ -124,6 +124,22 @@ organizations:
     certificateAuthorities:
       - ca.org2.example.com
 
+  Org3:
+    mspid: Org3MSP
+    cryptoPath:  peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp
+    peers:
+      - peer0.org3.example.com
+    certificateAuthorities:
+      - ca.org3.example.com
+
+  Org4:
+    mspid: Org4MSP
+    cryptoPath:  peerOrganizations/org4.example.com/users/Admin@org4.example.com/msp
+    peers:
+      - peer0.org4.example.com
+    certificateAuthorities:
+      - ca.org4.example.com
+
   ordererorg:
       mspID: "OrdererOrg"
       cryptoPath: ordererOrganizations/example.com/users/Admin@example.com/msp
@@ -158,6 +174,22 @@ peers:
     tlsCACerts:
       path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
 
+  peer0.org3.example.com:
+    url: grpcs://peer0.org3.example.com:7051
+    eventUrl: grpcs://peer0.org3.example.com:7053
+    grpcOptions:
+      ssl-target-name-override: peer0.org3.example.com
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
+
+  peer0.org4.example.com:
+    url: grpcs://peer0.org4.example.com:7051
+    eventUrl: grpcs://peer0.org4.example.com:7053
+    grpcOptions:
+      ssl-target-name-override: peer0.org4.example.com
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/suning-env/kafka/crypto-config/peerOrganizations/org4.example.com/tlsca/tlsca.org4.example.com-cert.pem
+
 certificateAuthorities:
   ca.org1.example.com:
     url: https://ca.org1.example.com:7054
@@ -176,6 +208,38 @@ certificateAuthorities:
 
   ca.org2.example.com:
     url: https://ca.org2.example.com:8054
+    httpOptions:
+      verify: true
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/ca_root.pem
+      client:
+       keyfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+       certfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
+
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    caName: ca.org2.example.com
+
+
+  ca.org3.example.com:
+    url: https://ca.org3.example.com:9054
+    httpOptions:
+      verify: true
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/ca_root.pem
+      client:
+       keyfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+       certfile: ${GOPATH}/src/github.com/fabric-suning-sdk/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
+
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    caName: ca.org2.example.com
+
+
+  ca.org4.example.com:
+    url: https://ca.org4.example.com:10054
     httpOptions:
       verify: true
     tlsCACerts:

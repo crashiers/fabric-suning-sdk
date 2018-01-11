@@ -58,10 +58,6 @@ func init() {
 		os.Exit(-1)
 	}
 
-	fmt.Printf("Start to install and instantiate the suning chaincode\n")
-	if err := base.InstallAndInstantiateSuningCC(); err != nil {
-		fmt.Printf("Install and instantiate the suning chaincode failed:%v", err)
-	}
 }
 
 func OutputJson(w http.ResponseWriter, code int, reason string, data interface{}) {
