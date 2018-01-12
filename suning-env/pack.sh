@@ -50,15 +50,15 @@ function create_orderer() {
     rm -rf $dir
     mkdir -p $dir
     echo "docker pull $docker_orderer_images" >> $dir/download-dockerimages.sh
-	echo "docker pull $docker_kafka_images" >> $dir/download-dockerimages.sh
-	echo "docker pull $docker_zookpeer_images" >> $dir/download-dockerimages.sh
+    echo "docker pull $docker_kafka_images" >> $dir/download-dockerimages.sh
+    echo "docker pull $docker_zookpeer_images" >> $dir/download-dockerimages.sh
     echo "docker tag $docker_orderer_images hyperledger/fabric-orderer" >> $dir/download-dockerimages.sh
-	echo "docker tag $docker_kafka_images hyperledger/fabric-kafka" >> $dir/download-dockerimages.sh
-	echo "docker tag $docker_zookpeer_images hyperledger/fabric-zookeeper" >> $dir/download-dockerimages.sh
+    echo "docker tag $docker_kafka_images hyperledger/fabric-kafka" >> $dir/download-dockerimages.sh
+    echo "docker tag $docker_zookpeer_images hyperledger/fabric-zookeeper" >> $dir/download-dockerimages.sh
    #	   echo "CHANNEL_NAME=$channel ./docker-compose -f docker-compose-orderer-solo.yaml up -d " >> $dir/startSolo.sh
-	echo "CHANNEL_NAME=$sunningchannel ./docker-compose -f docker-compose-orderer-kafka.yaml up -d " >> $dir/startKafka.sh
+    echo "CHANNEL_NAME=$sunningchannel ./docker-compose -f docker-compose-orderer-kafka.yaml up -d " >> $dir/startKafka.sh
    #   echo "docker logs -f orderer.example.com" >> $dir/startSolo.sh
-	echo "docker logs -f orderer.example.com" >> $dir/startKafka.sh
+    echo "docker logs -f orderer.example.com" >> $dir/startKafka.sh
     chmod u+x $dir/download-dockerimages.sh
 #chmod u+x $dir/startSolo.sh
     chmod u+x $dir/startKafka.sh
@@ -67,8 +67,8 @@ function create_orderer() {
     cp -rf kafka $dir
     cp -rf docker-compose $dir
 #    cp -rf docker-compose-orderer-solo.yaml $dir
-	cp -rf docker-compose-orderer-kafka.yaml $dir
-	cp -rf peer-base $dir
+    cp -rf docker-compose-orderer-kafka.yaml $dir
+    cp -rf peer-base $dir
     tar -cvf "$dir"0.tar $dir
     gzip "$dir"0.tar
     rm -rf $dir
@@ -100,7 +100,7 @@ function create_peer() {
         cp -rf docker-compose $project
         cp -rf docker-compose-peer"$N".yaml $project
         cp -rf peer-base/peer-base.yaml $project/peer-base/peer-base.yaml
-		cp -rf docker-compose-cli.yaml $project
+	cp -rf docker-compose-cli.yaml $project
         #cp -rf solo $project/
         cp -rf kafka $project/
         tar -cvf "$project"_peer$N.tar $project
