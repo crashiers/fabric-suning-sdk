@@ -95,13 +95,13 @@ channels:
         ledgerQuery: true
         eventSource: true
 
-      peer0.org2.example.com:
+      peer0.org3.example.com:
         endorsingPeer: false
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
 
-      peer0.org2.example.com:
+      peer0.org4.example.com:
         endorsingPeer: false
         chaincodeQuery: true
         ledgerQuery: true
@@ -247,7 +247,7 @@ certificateAuthorities:
     registrar:
       enrollId: admin
       enrollSecret: adminpw
-    caName: ca.org2.example.com
+    caName: ca.org3.example.com
 
 
   ca.org4.example.com:
@@ -263,4 +263,4 @@ certificateAuthorities:
     registrar:
       enrollId: admin
       enrollSecret: adminpw
-    caName: ca.org2.example.com
+    caName: ca.org4.example.com
