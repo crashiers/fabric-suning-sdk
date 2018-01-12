@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -22,8 +23,8 @@ import (
 
 var (
 	initialCredit int64 = 1e8
-	layout              = "2006-01-02 15:04:05"
-	date                = "20060102150405"
+	layout              = "2006-01-02 15:04:05.000"
+	date                = "20060102150405.000"
 	loc           *time.Location
 )
 
@@ -509,9 +510,10 @@ func (t *BlacklistChaincode) issueCredit(stub shim.ChaincodeStubInterface, args 
 		return shim.Error("write Error: " + err.Error())
 	}
 
+	timeStr := time.Now().In(loc).Format(date)
 	tx := &Transaction{
 		DocType:    "Transaction",
-		TxId:       time.Now().In(loc).Format(date),
+		TxId:       strings.Replace(timeStr, ".", "", -1),
 		From:       "0",
 		To:         agency.Addr,
 		Credit:     creditNumber,
@@ -576,9 +578,10 @@ func (t *BlacklistChaincode) issueCreditToOrg(stub shim.ChaincodeStubInterface, 
 		return shim.Error("write Error: " + err.Error())
 	}
 
+	timeStr := time.Now().In(loc).Format(date)
 	tx := &Transaction{
 		DocType:    "Transaction",
-		TxId:       time.Now().In(loc).Format(date),
+		TxId:       strings.Replace(timeStr, ".", "", -1),
 		From:       agency.Addr,
 		To:         org.OrgAddr,
 		Credit:     creditNumber,
@@ -645,9 +648,10 @@ func (t *BlacklistChaincode) transfer(stub shim.ChaincodeStubInterface, args []s
 		return shim.Error("write Error: " + err.Error())
 	}
 
+	timeStr := time.Now().In(loc).Format(date)
 	tx := &Transaction{
 		DocType:    "Transaction",
-		TxId:       time.Now().In(loc).Format(date),
+		TxId:       strings.Replace(timeStr, ".", "", -1),
 		From:       fromOrg.OrgAddr,
 		To:         toOrg.OrgAddr,
 		Credit:     creditNumber,
