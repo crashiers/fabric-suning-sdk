@@ -95,6 +95,18 @@ channels:
         ledgerQuery: true
         eventSource: true
 
+      peer0.org2.example.com:
+        endorsingPeer: false
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer0.org2.example.com:
+        endorsingPeer: false
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
     chaincodes:
       - suningcc:v1
 

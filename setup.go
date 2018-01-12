@@ -48,10 +48,14 @@ type BaseSetupImpl struct {
 const (
 	org1 = "Org1"
 	org2 = "Org2"
+	org3 = "Org3"
+	org4 = "Org4"
 )
 
 var org1ResMgmt resmgmt.ResourceMgmtClient
 var org2ResMgmt resmgmt.ResourceMgmtClient
+var org3ResMgmt resmgmt.ResourceMgmtClient
+var org4ResMgmt resmgmt.ResourceMgmtClient
 
 // Initialize reads configuration from file and sets up client, channel and event hub
 func (setup *BaseSetupImpl) Initialize() error {
@@ -135,6 +139,26 @@ func (setup *BaseSetupImpl) Initialize() error {
 
 		if err = org2ResMgmt.JoinChannel(setup.ChannelID); err != nil {
 			return errors.WithMessage(err, "org2 joinChannel failed")
+		}
+
+		// org3 resource management client
+		org3ResMgmt, err = sdk.NewResourceMgmtClientWithOpts("Admin", &deffab.ResourceMgmtClientOpts{OrgName: org3})
+		if err != nil {
+			return errors.WithMessage(err, "org3 failed to create new resource management client")
+		}
+
+		if err = org3ResMgmt.JoinChannel(setup.ChannelID); err != nil {
+			return errors.WithMessage(err, "org3 joinChannel failed")
+		}
+
+		// org4 resource management client
+		org4ResMgmt, err = sdk.NewResourceMgmtClientWithOpts("Admin", &deffab.ResourceMgmtClientOpts{OrgName: org4})
+		if err != nil {
+			return errors.WithMessage(err, "org4 failed to create new resource management client")
+		}
+
+		if err = org4ResMgmt.JoinChannel(setup.ChannelID); err != nil {
+			return errors.WithMessage(err, "org4 joinChannel failed")
 		}
 
 		fmt.Printf("Start to install and instantiate the suning chaincode\n")
@@ -236,7 +260,19 @@ func (setup *BaseSetupImpl) InstallAndInstantiateCC(ccName, ccPath, ccVersion, g
 	ccPolicy := cauthdsl.SignedByAnyMember([]string{"Org1MSP", "Org2MSP"})
 
 	// Org1 resource manager will instantiate cc on suningchannel
-	return org1ResMgmt.InstantiateCC(setup.ChannelID, resmgmt.InstantiateCCRequest{Name: ccName, Path: ccPath, Version: ccVersion, Args: ccArgs, Policy: ccPolicy})
+	err = org1ResMgmt.InstantiateCC(setup.ChannelID, resmgmt.InstantiateCCRequest{Name: ccName, Path: ccPath, Version: ccVersion, Args: ccArgs, Policy: ccPolicy})
+	if err != nil {
+		return err
+	}
+
+	// Org1 resource manager will instantiate cc on suningchannel
+	err = org2ResMgmt.InstantiateCC(setup.ChannelID, resmgmt.InstantiateCCRequest{Name: ccName, Path: ccPath, Version: ccVersion, Args: ccArgs, Policy: ccPolicy})
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 // GetChannel initializes and returns a channel based on config
