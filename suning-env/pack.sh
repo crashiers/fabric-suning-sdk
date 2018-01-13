@@ -100,10 +100,9 @@ function create_peer() {
         cp -rf docker-compose $project
         cp -rf docker-compose-peer"$N".yaml $project
         cp -rf peer-base/peer-base.yaml $project/peer-base/peer-base.yaml
-	cp -rf docker-compose-cli.yaml $project
         #cp -rf solo $project/
         cp -rf kafka $project/
-		cp -rf ../../src/ $project/
+		cp -rf ../src/ $project/
         tar -cvf "$project"_peer$N.tar $project
         gzip "$project"_peer$N.tar
         rm -rf $project
