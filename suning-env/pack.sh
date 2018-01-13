@@ -26,11 +26,7 @@ function create_ca() {
 #    echo "curl -X PUT http://127.0.0.1:5984/_replicator" >> $dir/start.sh
 #    echo "curl -X PUT http://127.0.0.1:5984/_global_changes" >> $dir/start.sh
     echo "docker logs -f ca_peerOrg1" >> $dir/start.sh
-    echo "docker logs -f ca_peerOrg2" >> $dir/start.sh
-	echo "docker logs -f ca_peerOrg3" >> $dir/start.sh
-    echo "docker logs -f ca_peerOrg4" >> $dir/start.sh
-    chmod u+x $dir/download-dockerimages.sh
-    chmod u+x $dir/start.sh
+    chmod u+x $dir/*
 
     mkdir -p $dir/scripts
     cp -rf solo $dir
@@ -59,9 +55,7 @@ function create_orderer() {
     echo "CHANNEL_NAME=$sunningchannel ./docker-compose -f docker-compose-orderer-kafka.yaml up -d " >> $dir/startKafka.sh
    #   echo "docker logs -f orderer.example.com" >> $dir/startSolo.sh
     echo "docker logs -f orderer.example.com" >> $dir/startKafka.sh
-    chmod u+x $dir/download-dockerimages.sh
-#chmod u+x $dir/startSolo.sh
-    chmod u+x $dir/startKafka.sh
+    chmod u+x $dir/*
 	
 #    cp -rf solo $dir
     cp -rf kafka $dir
@@ -93,8 +87,7 @@ function create_peer() {
         echo "docker pull $docker_ccenv_images" >> $project/download-dockerimages.sh
         echo "docker tag $docker_ccenv_images hyperledger/fabric-ccenv" >> $project/download-dockerimages.sh
         echo "docker pull $docker_baseos_images" >> $project/download-dockerimages.sh
-        chmod u+x $project/start.sh
-        chmod u+x $project/download-dockerimages.sh
+        chmod u+x $project/*
 
         mkdir -p ./$project/peer-base
         cp -rf docker-compose $project
