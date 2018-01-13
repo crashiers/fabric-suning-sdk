@@ -103,6 +103,7 @@ function create_peer() {
 		cp -rf docker-compose-cli.yaml $project
         #cp -rf solo $project/
         cp -rf kafka $project/
+		cp -rf ../../src/ $project/
         tar -cvf "$project"_peer$N.tar $project
         gzip "$project"_peer$N.tar
         rm -rf $project
