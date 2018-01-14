@@ -265,6 +265,12 @@ func (setup *BaseSetupImpl) InstallAndInstantiateCC(ccName, ccPath, ccVersion, g
 		return err
 	}
 
+	// Org1 resource manager will instantiate cc on suningchannel
+	err = org2ResMgmt.InstantiateCC(setup.ChannelID, resmgmt.InstantiateCCRequest{Name: ccName, Path: ccPath, Version: ccVersion, Args: ccArgs, Policy: ccPolicy})
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 }

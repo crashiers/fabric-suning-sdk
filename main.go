@@ -52,7 +52,7 @@ func init() {
 		ConnectEventHub: true,
 	}
 
-	fmt.Printf("Start to Initialize the Fabric SDK")
+	log.Printf("Start to Initialize the Fabric SDK")
 	if err := base.Initialize(); err != nil {
 		fmt.Printf("Initialize: %v", err)
 		os.Exit(-1)
@@ -84,6 +84,7 @@ func main() {
 	http.HandleFunc("/queryOrg", QueryOrg)
 	http.HandleFunc("/queryAgency", QueryAgency)
 
+	log.Printf("Start to listen the 8080 port")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
