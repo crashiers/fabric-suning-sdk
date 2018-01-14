@@ -93,7 +93,7 @@ function create_peer() {
         cp -rf peer-base/peer-base.yaml $project/peer-base/peer-base.yaml
         #cp -rf solo $project/
         cp -rf kafka $project/
-		cp -rf ../src/$project/
+		cp -rf ../src/ $project/
 		chmod u+x $project/*
         tar -cvf "$project"_peer$N.tar $project
         gzip "$project"_peer$N.tar
